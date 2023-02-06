@@ -27,16 +27,25 @@
 #define TX_PIN    17// Pin connected to the RX pin of X10A
 #endif
 
-#define PIN_THERM 0// Pin connected to the thermostat relay (normally open)
+#if defined(ARDUINO_M5Stick_C) || defined(ARDUINO_M5Stick_C_Plus)
+#define PIN_RT_HEATING 0// Pin connected to the thermostat heating relay (normally open)
+//#define PIN_RT_COOLING 0// Pin connected to the thermostat heating relay (normally open)
+#else
+//#define PIN_RT_HEATING 1// Pin connected to the thermostat heating relay (normally open)
+//#define PIN_RT_COOLING 2// Pin connected to the thermostat heating relay (normally open)
+#endif
 
 //Smart grid control - Optional:
 //Uncomment and set to enable SG mqtt functions
-//#define PIN_SG1 32// Pin connected to dry contact SG 1 relay (normally open)
-//#define PIN_SG2 33// Pin connected to dry contact SG 2 relay (normally open)
+#define PIN_SG1 32// Pin connected to dry contact SG 1 relay (normally open)
+#define PIN_SG2 33// Pin connected to dry contact SG 2 relay (normally open)
 // Define if your SG relay board is Low or High triggered (signal pins)
-// Only uncomment one of them
-#define SG_RELAY_HIGH_TRIGGER
-//#define SG_RELAY_LOW_TRIGGER
+//#define SG_RELAY_HIGH_TRIGGER
+#define SG_RELAY_LOW_TRIGGER
+
+#if defined(PIN_SG1) && defined(PIN_SG2)
+#define SMART_GRID_ENABLED
+#endif
 
 // DO NOT CHANGE: Defines the SG active/inactive relay states, according to the definition of the trigger status
 #if defined(SG_RELAY_LOW_TRIGGER)

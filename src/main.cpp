@@ -21,6 +21,7 @@
 #include "mqttserial.h"
 #include "converters.h"
 #include "comm.h"
+#include "eepromState.h"
 #include "mqtt.h"
 #include "restart.h"
 
@@ -141,6 +142,8 @@ void setup_wifi()
     }
   #endif
 
+  WiFi.setScanMethod(WIFI_ALL_CHANNEL_SCAN);
+  WiFi.setSortMethod(WIFI_CONNECT_AP_BY_SIGNAL);
   WiFi.begin(WIFI_SSID, WIFI_PWD);
   checkWifi();
   mqttSerial.printf("Connected. IP Address: %s\n", WiFi.localIP().toString().c_str());
@@ -197,10 +200,18 @@ void setup()
   Serial.begin(115200);
   setupScreen();
   MySerial.begin(9600, SERIAL_CONFIG, RX_PIN, TX_PIN);
-  pinMode(PIN_THERM, OUTPUT);
-  digitalWrite(PIN_THERM, HIGH);
 
-#ifdef PIN_SG1
+#ifdef PIN_RT_HEATING
+  pinMode(PIN_RT_HEATING, OUTPUT);
+  digitalWrite(PIN_RT_HEATING, SG_RELAY_INACTIVE_STATE);
+#endif
+
+#ifdef PIN_RT_COOLING
+  pinMode(PIN_RT_COOLING, OUTPUT);
+  digitalWrite(PIN_RT_COOLING, SG_RELAY_INACTIVE_STATE);
+#endif
+
+#ifdef SMART_GRID_ENABLED
   //Smartgrid pins - Set first to the inactive state, before configuring as outputs (avoid false triggering when initializing)
   digitalWrite(PIN_SG1, SG_RELAY_INACTIVE_STATE);
   digitalWrite(PIN_SG2, SG_RELAY_INACTIVE_STATE);
@@ -214,6 +225,7 @@ void setup()
 #endif
 
   EEPROM.begin(10);
+  initEEPROM();  
   readEEPROM();//Restore previous state
   mqttSerial.print("Setting up wifi...");
   setup_wifi();
